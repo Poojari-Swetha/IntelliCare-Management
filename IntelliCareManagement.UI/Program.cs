@@ -21,7 +21,7 @@ builder.Services.AddDbContext<IntelliCareDbContext>(options =>
 );
 
 // Register repositories
-builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddScoped(typeof(IntelliCareManagement.Core.Interfaces.IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserSecurityRepository, UserSecurityRepository>();

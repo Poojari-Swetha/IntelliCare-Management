@@ -1,15 +1,16 @@
-﻿using System;
+﻿using IntelliCareManagement.Core.DTOs;
+using IntelliCareManagement.Domain.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using IntelliCareManagement.Core.DTOs;
 
 namespace IntelliCareManagement.Core.Interfaces
 {
 
 
-    public interface IReportRepository
+    public interface IReportRepository : IGenericRepository<Report>
     {
         Task<IEnumerable<ReportDto>> GetAllAsync();
         Task<ReportDto> GetByIdAsync(int reportId);
@@ -18,4 +19,7 @@ namespace IntelliCareManagement.Core.Interfaces
         Task DeleteAsync(int reportId);
     }
 
+    public interface IGenericRepository<T>
+    {
+    }
 }
