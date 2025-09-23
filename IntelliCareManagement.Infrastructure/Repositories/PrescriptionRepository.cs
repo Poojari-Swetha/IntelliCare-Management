@@ -1,39 +1,106 @@
 ﻿using IntelliCareManagement.Core.DTOs;
 using IntelliCareManagement.Core.Interfaces;
 using IntelliCareManagement.Domain.Entities;
-//using IntelliCareManagement.Domain.Interfaces;
 using IntelliCareManagement.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace IntelliCareManagement.Infrastructure.Repositories
 {
     public class PrescriptionRepository : GenericRepository<Prescription>, IPrescriptionRepository
     {
-        public PrescriptionRepository(IntelliCareDbContext context) : base(context) { }
+        private readonly IntelliCareDbContext _context;
 
-        public Task AddAsync(PrescriptionDto prescription)
+        public PrescriptionRepository(IntelliCareDbContext context) : base(context)
         {
-            throw new NotImplementedException();
+            _context = context;
         }
 
-        public Task DeleteAsync(int prescriptionId)
+        public async Task<PrescriptionDto> AddAsync(PrescriptionDto dto)
         {
-            throw new NotImplementedException();
+            var entity = new Prescription
+            {
+                ConsultationID = dto.ConsultationID,
+                Medication = dto.Medication,
+                Dosage = dto.Dosage,
+                Duration = dto.Duration,
+                PharmacyName = dto.PharmacyName,
+                PharmacyStatus = dto.PharmacyStatus,
+                DeliveryETA = dto.DeliveryETA
+            };
+
+            await _context.Prescriptions.AddAsync(entity);
+            await _context.SaveChangesAsync();
+
+            dto.PrescriptionID = entity.PrescriptionID;
+            return dto;
         }
 
-        public Task UpdateAsync(PrescriptionDto prescription)
+        public async Task DeleteAsync(int prescriptionId)
         {
-            throw new NotImplementedException();
+            var entity = await _context.Prescriptions.FindAsync(prescriptionId);
+            if (entity != null)
+            {
+                _context.Prescriptions.Remove(entity);
+                await _context.SaveChangesAsync();
+            }
         }
 
-        Task<IEnumerable<PrescriptionDto>> IPrescriptionRepository.GetAllAsync()
+        public async Task UpdateAsync(PrescriptionDto dto)
         {
-            throw new NotImplementedException();
+            var entity = await _context.Prescriptions.FindAsync(dto.PrescriptionID);
+            if (entity != null)
+            {
+                entity.ConsultationID = dto.ConsultationID;
+                entity.Medication = dto.Medication;
+                entity.Dosage = dto.Dosage;
+                entity.Duration = dto.Duration;
+                entity.PharmacyName = dto.PharmacyName;
+                entity.PharmacyStatus = dto.PharmacyStatus;
+                entity.DeliveryETA = dto.DeliveryETA;
+
+                _context.Prescriptions.Update(entity);
+                await _context.SaveChangesAsync();
+            }
         }
 
-        Task<PrescriptionDto> IPrescriptionRepository.GetByIdAsync(int prescriptionId)
+        public async Task<IEnumerable<PrescriptionDto>> GetAllAsync()
         {
-            throw new NotImplementedException();
+            return await _context.Prescriptions
+                .Select(p => new PrescriptionDto
+                {
+                    PrescriptionID = p.PrescriptionID,
+                    ConsultationID = p.ConsultationID,
+                    Medication = p.Medication,
+                    Dosage = p.Dosage,
+                    Duration = p.Duration,
+                    PharmacyName = p.PharmacyName,
+                    PharmacyStatus = p.PharmacyStatus,
+                    DeliveryETA = p.DeliveryETA
+                })
+                .ToListAsync();
         }
-        // Add custom methods for Prescription if needed
+
+        public async Task<PrescriptionDto> GetByIdAsync(int prescriptionId)
+        {
+            var entity = await _context.Prescriptions.FindAsync(prescriptionId);
+            if (entity == null) return null;
+
+            return new PrescriptionDto
+            {
+                PrescriptionID = entity.PrescriptionID,
+                ConsultationID = entity.ConsultationID,
+                Medication = entity.Medication,
+                Dosage = entity.Dosage,
+                Duration = entity.Duration,
+                PharmacyName = entity.PharmacyName,
+                PharmacyStatus = entity.PharmacyStatus,
+                DeliveryETA = entity.DeliveryETA
+            };
+        }
+
+        Task IPrescriptionRepository.AddAsync(PrescriptionDto prescription)
+        {
+            return AddAsync(prescription);
+        }
     }
 }
