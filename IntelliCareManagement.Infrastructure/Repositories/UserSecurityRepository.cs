@@ -1,39 +1,102 @@
-﻿using IntelliCareManagement.Core.DTOs;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using IntelliCareManagement.Core.DTOs;
+//using IntelliCareManagement.Core.Entities;
 using IntelliCareManagement.Core.Interfaces;
 using IntelliCareManagement.Domain.Entities;
-//using IntelliCareManagement.Domain.Interfaces;
 using IntelliCareManagement.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace IntelliCareManagement.Infrastructure.Repositories
 {
     public class UserSecurityRepository : GenericRepository<UserSecurity>, IUserSecurityRepository
     {
-        public UserSecurityRepository(IntelliCareDbContext context) : base(context) { }
+        private readonly IntelliCareDbContext _context;
 
-        public Task AddAsync(UserSecurityDto security)
+        public UserSecurityRepository(IntelliCareDbContext context) : base(context)
         {
-            throw new NotImplementedException();
+            _context = context;
         }
 
-        public Task DeleteAsync(int securityId)
+        public async Task<IEnumerable<UserSecurityDto>> GetAllAsync()
         {
-            throw new NotImplementedException();
+            return await _context.UserSecurities
+                .Select(s => new UserSecurityDto
+                {
+                    SecurityID = s.SecurityID,
+                    UserID = s.UserID,
+                    OTPCode = s.OTPCode,
+                    OTPExpiry = s.OTPExpiry,
+                    IsOTPVerified = s.IsOTPVerified,
+                    APIToken = s.APIToken,
+                    TokenExpiry = s.TokenExpiry,
+                    IsTokenActive = s.IsTokenActive
+                })
+                .ToListAsync();
         }
 
-        public Task UpdateAsync(UserSecurityDto security)
+        public async Task<UserSecurityDto> GetByIdAsync(int securityId)
         {
-            throw new NotImplementedException();
+            var s = await _context.UserSecurities.FindAsync(securityId);
+            if (s == null) return null;
+
+            return new UserSecurityDto
+            {
+                SecurityID = s.SecurityID,
+                UserID = s.UserID,
+                OTPCode = s.OTPCode,
+                OTPExpiry = s.OTPExpiry,
+                IsOTPVerified = s.IsOTPVerified,
+                APIToken = s.APIToken,
+                TokenExpiry = s.TokenExpiry,
+                IsTokenActive = s.IsTokenActive
+            };
         }
 
-        Task<IEnumerable<UserSecurityDto>> IUserSecurityRepository.GetAllAsync()
+        public async Task AddAsync(UserSecurityDto dto)
         {
-            throw new NotImplementedException();
+            var entity = new UserSecurity
+            {
+                UserID = dto.UserID,
+                OTPCode = dto.OTPCode,
+                OTPExpiry = dto.OTPExpiry,
+                IsOTPVerified = dto.IsOTPVerified,
+                APIToken = dto.APIToken,
+                TokenExpiry = dto.TokenExpiry,
+                IsTokenActive = dto.IsTokenActive
+            };
+
+            _context.UserSecurities.Add(entity);
+            await _context.SaveChangesAsync();
+
+            dto.SecurityID = entity.SecurityID;
         }
 
-        Task<UserSecurityDto> IUserSecurityRepository.GetByIdAsync(int securityId)
+        public async Task UpdateAsync(UserSecurityDto dto)
         {
-            throw new NotImplementedException();
+            var entity = await _context.UserSecurities.FindAsync(dto.SecurityID);
+            if (entity == null) return;
+
+            entity.UserID = dto.UserID;
+            entity.OTPCode = dto.OTPCode;
+            entity.OTPExpiry = dto.OTPExpiry;
+            entity.IsOTPVerified = dto.IsOTPVerified;
+            entity.APIToken = dto.APIToken;
+            entity.TokenExpiry = dto.TokenExpiry;
+            entity.IsTokenActive = dto.IsTokenActive;
+
+            _context.UserSecurities.Update(entity);
+            await _context.SaveChangesAsync();
         }
-        // Add custom methods for UserSecurity if needed
+
+        public async Task DeleteAsync(int securityId)
+        {
+            var entity = await _context.UserSecurities.FindAsync(securityId);
+            if (entity == null) return;
+
+            _context.UserSecurities.Remove(entity);
+            await _context.SaveChangesAsync();
+        }
     }
 }

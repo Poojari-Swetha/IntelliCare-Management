@@ -1,10 +1,16 @@
-﻿using IntelliCareManagement.Domain.Entities;
-using IntelliCareManagement.Infrastructure.Repositories;
+﻿using IntelliCareManagement.Core.DTOs;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace IntelliCareManagement.Core.Interfaces
 {
-    public interface IPatientProfileRepository : IGenericRepository<PatientProfile>
+    public interface IPatientProfileRepository
     {
-        // Custom methods if needed
+        Task<IEnumerable<PatientDto>> GetAllAsync();
+        Task<PatientDto> GetByIdAsync(int id);
+        Task<PatientDto> AddAsync(PatientDto dto); // <-- updated
+        Task UpdateAsync(PatientDto dto);
+        Task DeleteAsync(int id);
     }
+
 }

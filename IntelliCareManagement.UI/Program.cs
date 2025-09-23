@@ -16,6 +16,7 @@ builder.Services.AddDbContext<IntelliCareDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection"),
         b => b.MigrationsAssembly("IntelliCareManagement.Infrastructure")
+
     )
 );
 
