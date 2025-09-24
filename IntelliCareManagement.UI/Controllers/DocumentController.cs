@@ -39,8 +39,8 @@ namespace IntelliCareManagement.UI.Controllers
         [HttpPost]
         public async Task<ActionResult> Add([FromBody] DocumentDto dto)
         {
-            var created = await _documentRepository.AddAsync(dto);
-            return CreatedAtAction(nameof(GetById), new { id = created.DocumentID }, created);
+            await _documentRepository.AddAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = dto.DocumentID }, dto);
         }
 
         // PUT: api/Document/{id}
