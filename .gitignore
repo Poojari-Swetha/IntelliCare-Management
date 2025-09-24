@@ -1,3 +1,7 @@
+# Ignore sensitive app settings
+appsettings.json
+
+# Existing ignore rules
 .vs/
 bin/
 obj/
